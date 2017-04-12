@@ -42,7 +42,7 @@ PS1 files that are monolithic in nature, contain all the logic and do all the th
 
 # Jenkins "The Butler"
 
-Jenkins strength is around centralized automation. Traditionally traditionally that automation is in support of software development continuous integration (CI) and continous development (CD). The typical workflow is capture code from source control, test that code, build that code, produce an "artifact" (exe, msi, java jar or war, a zip file, "a thing" etc), intiate further testing, and lastly initiate a deployment to production. 
+Jenkins strength is around centralized automation. Traditionally that automation is in support of software development continuous integration (CI) and continous development (CD). The typical workflow is capture code from source control, test that code, build that code, produce an "artifact" (exe, msi, java jar or war, a zip file, "a thing" etc), intiate further testing, and lastly initiate a deployment to production. 
 
 For ScheduledTasks that is a little different. While the "build" phase and the "testing" phase might be non-existant or truncated, the capturing code from source control, and deploy to production are still in effect. We therefore have a compressed, shhortened, or simplified pipeline. This scheduled task pipeline gets the benifits of keeping your scheduled task script code in Git but still facilitates having it reliabley executed when and where needed. Its the butler that shuttles your code from source control to production, and keeps track of all the intervening details.
 
@@ -60,84 +60,23 @@ Scripted Pipline vs. Declaritive Pipeline
 
 ### Declaritive Examples
 
-Most Basic
+https://github.com/jlrd/ScheduledTaskReleasePipeline
 
-```
-pipeline {
-	agent { label 'ActiveDirectory' } 
-	triggers { cron('*/5 * * * *') }   
-	stages {
-        stage('DoThatThing') {
-            steps {
-                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\DoThatThingWithProcesses.ps1'\""
-            }
-        }
-    }
-}
-```
+## Jenkins Pipeline Job
 
-"Scheduled Task Native-ish"
+1. Click "New Item"
+2. Enter a name
+3. Choose "Pipeline Job"
+4. Click Ok
+5. Select from Pipeline definition "Pipeline Script from SCM"
+6. Select your SCM, i.e. Git 
+    + If you are using alternate source code manager you may need to install the appropriate Jenkins plugin. For example to get TFS or Mercurial to appear in the drop down menu.
+7. Enter the repository URL, i.e. clone url
+    + If your repo needs credentials you will need to add and select them.
+    + If there are not "red alerts" it means Jenkins could connect
+8. [Optional] Add additional behaviors; "Wipe out repo and force clone"
+    + Scheduled Task piples are usually small repos. I like piece of mind that I'm getting the latest bits on each run. Your mileage and thought process may vary.
 
-```
-pipeline {
-	agent { label 'ActiveDirectory' } 
-	triggers { cron('*/5 * * * *') }
-    options { disableConcurrentBuilds()
-              timeout(time: 1, unit: 'HOURS')
-              retry(3)
-              disableConcurrentBuilds() }   
-	stages {
-        stage('DoThatThing') {
-            steps {
-                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\DoThatThingWithProcesses.ps1'\""
-            }
-        }
-    }
-}
-```
-
-"Lifes a Stage"
-
-```
-pipeline {
-	agent { label 'ActiveDirectory' } 
-	triggers { cron('*/5 * * * *') }
-    options { disableConcurrentBuilds()
-              timeout(time: 1, unit: 'HOURS')
-              retry(3) }   
-	stages {
-        stage('Get New Hire Info') {
-            steps {
-                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\NewHireInfo.ps1'\""
-            }
-        }
-        stage('Create AD User') {
-            steps {
-                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\CreateADUser.ps1'\""
-            }
-        }
-        stage('New Hire Email') {
-            steps {
-                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\NewHireEmail.ps1'\""
-            }
-        }
-        stage('New Hire HomeDrive') {
-            steps {
-                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\NewHireHome.ps1'\""
-            }
-        }
-    }
-    post { 
-        failure { 
-            mail to:"ImportantPeople@example.com", subject:"FAILURE: New User Creation Job", body: "Uh oh, job failed."
-            office365ConnectorSend message: "New User Creation FAILED", webhookUrl:'http://some.thing.something.microsoft.com/randomgook'
-        }
-        success { 
-            office365ConnectorSend message: "New User Creation SUCCEEDED", webhookUrl:'http://some.thing.something.microsoft.com/randomgook'
-        }
-    }
-}
-```
 
 # Jenkins Agent "The Scheduled Task"
 

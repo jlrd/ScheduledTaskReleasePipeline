@@ -1,0 +1,38 @@
+pipeline {
+	agent { label 'ActiveDirectory' } 
+	triggers { cron('*/5 * * * *') }
+    options { disableConcurrentBuilds()
+              timeout(time: 1, unit: 'HOURS')
+              retry(3) }   
+	stages {
+        stage('Get New Hire Info') {
+            steps {
+                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\YourScript.ps1'\""
+            }
+        }
+        stage('Create AD User') {
+            steps {
+                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\YourScript.ps1'\""
+            }
+        }
+        stage('New Hire Email') {
+            steps {
+                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\YourScript.ps1'\""
+            }
+        }
+        stage('New Hire HomeDrive') {
+            steps {
+                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\YourScript.ps1'\""
+            }
+        }
+    }
+    post { 
+        failure { 
+            mail to:"ImportantPeople@example.com", subject:"FAILURE: New User Creation Job", body: "Uh oh, job failed."
+            office365ConnectorSend message: "New User Creation FAILED", webhookUrl:'http://some.thing.something.microsoft.com/randomgook'
+        }
+        success { 
+            office365ConnectorSend message: "New User Creation SUCCEEDED", webhookUrl:'http://some.thing.something.microsoft.com/randomgook'
+        }
+    }
+}

@@ -1,0 +1,14 @@
+pipeline {
+	agent { label 'ActiveDirectory' } 
+	triggers { cron('*/5 * * * *') }
+    options { disableConcurrentBuilds()
+              timeout(time: 1, unit: 'HOURS')
+              retry(3) }   
+	stages {
+        stage('DoThatThing') {
+            steps {
+                bat "powershell.exe -NonInteractive -ExecutionPolicy Bypass -Command \"& '.\\YourScript.ps1'\""
+            }
+        }
+    }
+}
