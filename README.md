@@ -8,6 +8,10 @@
 
 PS1 (Git) > Jenkins (Pipeline Job) > Jenkins Agent (Scheduled Task)
 
+This methodology is slightly off what I think standard usage for Jenkins is. My "slaves" aka (Agents) are not "building" anything but they are facilitating something. That something is delivering my up to the minute "schedulded task" code to a location where it can be successfuly. Typically that is targeted to a Agent instance that is running with credentials that will allow code to do what it needs.
+
+In my Scheduled Task consolidation project there many dozen of scheduled tasks running on many dozens of servers. After consolidation I have about 6 management hosts running all scheduled tasks that are delivered and executed from Git. Each of those management hosts has 2 or 3 agent instances.
+
 ## From
 
 + Scripts on file systems all over ...
@@ -44,7 +48,7 @@ PS1 files that are monolithic in nature, contain all the logic and do all the th
 
 Jenkins strength is around centralized automation. Traditionally that automation is in support of software development continuous integration (CI) and continous development (CD). The typical workflow is capture code from source control, test that code, build that code, produce an "artifact" (exe, msi, java jar or war, a zip file, "a thing" etc), intiate further testing, and lastly initiate a deployment to production. 
 
-For ScheduledTasks that is a little different. While the "build" phase and the "testing" phase might be non-existant or truncated, the capturing code from source control, and deploy to production are still in effect. We therefore have a compressed, shhortened, or simplified pipeline. This scheduled task pipeline gets the benifits of keeping your scheduled task script code in Git but still facilitates having it reliabley executed when and where needed. Its the butler that shuttles your code from source control to production, and keeps track of all the intervening details.
+For ScheduledTasks that is a little different. While the "build" phase and the "testing" phase might be non-existant or truncated, the capturing code from source control, and deploy to production are still in effect. We therefore have a compressed, shortened, or simplified pipeline. This scheduled task pipeline gets the benifits of keeping your scheduled task script code in Git but still facilitates having it reliabley executed when and where needed. Its the butler that shuttles your code from source control to production, and keeps track of all the intervening details.
 
 ## Jenkins Pipeline
 
@@ -79,6 +83,8 @@ https://github.com/jlrd/ScheduledTaskReleasePipeline
 
 
 # Jenkins Agent "The Scheduled Task"
+
+Using an "On Startup" Scheduled Task to run the Jenkins Agent has some advantages over using the msi install, or other methods. One of the concerns with Jenkins is while it stores credentials in Jenkins masters credential store as encrypted, it shuttles the username **and password** to the agent in clear text. It also makes the password available to your code via a clear text environment variable. To avoid this I put the credentials in the "run as" portion of the Scheduled Task, and as such it is stored in the Windows Credential Store. Additionally you can then run additional instances of the Agent scheduled task, each with its own credential context. Then you can target the instance from your Jenkinspiple with agent/node labels.
 
 ## Create the Node(s)
 
