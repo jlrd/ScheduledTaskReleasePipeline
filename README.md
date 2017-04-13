@@ -199,8 +199,10 @@ Need a SQL context, setup a task with SQL service account with appropriate right
 
 # Contact
 
-Joel Reed 
-@AKAJoelReed
+Joel Reed
+
+[@AKAJoelReed](https://twitter.com/@AKAJoelReed)
+
 joelreed@outlook.com
 
 https://github.com/jlrd/ScheduledTaskReleasePipeline
